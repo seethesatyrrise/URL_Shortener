@@ -14,6 +14,9 @@ func (r *Repo) GetFullLink(ctx context.Context, token string) (string, error) {
 }
 
 func (r *Repo) GetToken(ctx context.Context, link string) (string, error) {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+
 	token, err := (*r.storage).TryGetTokenByLink(link)
 	if err != nil {
 		return "", err
