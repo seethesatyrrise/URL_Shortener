@@ -4,6 +4,7 @@ import (
 	"URL_Shortener/internal/config"
 	"URL_Shortener/internal/models"
 	"URL_Shortener/internal/utils"
+	"context"
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -30,17 +31,17 @@ func (db *DBStorage) Migrate() error {
 	return db.db.AutoMigrate(&models.DBData{})
 }
 
-func (db *DBStorage) SaveData(link, token string) error {
+func (db *DBStorage) SaveData(ctx context.Context, link, token string) error {
 	data := &models.DBData{
 		Link:  link,
 		Token: token,
 	}
-	return db.db.Create(data).Error
+	return db.db.WithContext(ctx).Create(data).Error
 }
 
-func (db *DBStorage) GetLinkByToken(token string) (string, error) {
+func (db *DBStorage) GetLinkByToken(ctx context.Context, token string) (string, error) {
 	data := &models.DBData{}
-	err := db.db.Where(&models.DBData{Token: token}).Take(&data).Error
+	err := db.db.WithContext(ctx).Where(&models.DBData{Token: token}).Take(&data).Error
 	if err == gorm.ErrRecordNotFound {
 		return "", utils.ErrNotFound
 	}
@@ -51,9 +52,9 @@ func (db *DBStorage) GetLinkByToken(token string) (string, error) {
 	return data.Link, nil
 }
 
-func (db *DBStorage) TryGetTokenByLink(link string) (string, error) {
+func (db *DBStorage) TryGetTokenByLink(ctx context.Context, link string) (string, error) {
 	data := &models.DBData{}
-	err := db.db.Where(&models.DBData{Link: link}).Take(&data).Error
+	err := db.db.WithContext(ctx).Where(&models.DBData{Link: link}).Take(&data).Error
 	if err == gorm.ErrRecordNotFound {
 		return "", nil
 	}

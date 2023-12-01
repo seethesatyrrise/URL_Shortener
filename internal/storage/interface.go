@@ -1,7 +1,9 @@
 package storage
 
+import "context"
+
 type Storage interface {
-	SaveData(string, string) error
-	GetLinkByToken(string) (string, error)
-	TryGetTokenByLink(string) (string, error)
+	SaveData(context.Context, string, string) error
+	GetLinkByToken(context.Context, string) (string, error)
+	TryGetTokenByLink(context.Context, string) (string, error)
 }

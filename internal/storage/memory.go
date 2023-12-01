@@ -1,6 +1,9 @@
 package storage
 
-import "URL_Shortener/internal/utils"
+import (
+	"URL_Shortener/internal/utils"
+	"context"
+)
 
 type MemoryStorage struct {
 	linksByTokens map[string]string
@@ -14,13 +17,13 @@ func NewMemoryStorage() *MemoryStorage {
 	}
 }
 
-func (ms *MemoryStorage) SaveData(link, token string) error {
+func (ms *MemoryStorage) SaveData(ctx context.Context, link, token string) error {
 	ms.linksByTokens[token] = link
 	ms.tokensByLinks[link] = token
 	return nil
 }
 
-func (ms *MemoryStorage) GetLinkByToken(token string) (string, error) {
+func (ms *MemoryStorage) GetLinkByToken(ctx context.Context, token string) (string, error) {
 	link, ok := ms.linksByTokens[token]
 	if !ok {
 		return "", utils.ErrNotFound
@@ -28,7 +31,7 @@ func (ms *MemoryStorage) GetLinkByToken(token string) (string, error) {
 	return link, nil
 }
 
-func (ms *MemoryStorage) TryGetTokenByLink(link string) (string, error) {
+func (ms *MemoryStorage) TryGetTokenByLink(ctx context.Context, link string) (string, error) {
 	token, _ := ms.tokensByLinks[link]
 	return token, nil
 }
