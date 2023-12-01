@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  tokens_service:
+    build:
+      dockerfile: ./Dockerfile
+    container_name: tokens_service
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - HTTP_PORT=${HTTP_PORT}
+      - USE_MEMORY=${USE_MEMORY}
+    env_file: .env
+    ports:
+      - '8080:8080'
+    restart: on-failure
+    volumes:
+      - .:/app
+    depends_on:
+      database:
+        condition: service_started
+
+  database:
+    image: postgres:13.3
+    container_name: postgres
+    restart: on-failure
+    env_file: .env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+    ports:
+      - '5432:5432'
