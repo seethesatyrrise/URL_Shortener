@@ -2,6 +2,7 @@ package app
 
 import (
 	"URL_Shortener/internal/config"
+	grpchandler "URL_Shortener/internal/handlers/grpc"
 	"URL_Shortener/internal/handlers/rest"
 	"URL_Shortener/internal/repo"
 	"URL_Shortener/internal/server"
@@ -16,10 +17,11 @@ import (
 type App struct {
 	service *service.Service
 	storage.Storage
-	router *gin.Engine
-	server *server.Server
-	cfg    *config.Config
-	logger *zap.Logger
+	router     *gin.Engine
+	httpServer *server.HTTPServer
+	grpcServer *server.GRPCServer
+	cfg        *config.Config
+	logger     *zap.Logger
 }
 
 func New(ctx context.Context) (app *App, err error) {
@@ -53,7 +55,12 @@ func New(ctx context.Context) (app *App, err error) {
 	rest := rest.New(app.service)
 	app.router = rest.Route()
 
-	app.server, err = server.NewServer(&app.cfg.HTTP, app.router.Handler())
+	app.httpServer, err = server.NewHTTPServer(&app.cfg.HTTP, app.router.Handler(), app.logger)
+	if err != nil {
+		return nil, err
+	}
+
+	app.grpcServer, err = server.NewGRPCServer(&app.cfg.GRPC, grpchandler.New(app.service), app.logger)
 	if err != nil {
 		return nil, err
 	}
@@ -62,9 +69,13 @@ func New(ctx context.Context) (app *App, err error) {
 }
 
 func (app *App) Run(ctx context.Context) error {
-	app.logger.Info("server starting")
+	app.logger.Info("servers starting")
 
-	if err := app.server.Start(); err != nil {
+	if err := app.httpServer.Start(); err != nil {
+		return err
+	}
+
+	if err := app.grpcServer.Start(); err != nil {
 		return err
 	}
 
@@ -72,5 +83,12 @@ func (app *App) Run(ctx context.Context) error {
 }
 
 func (app *App) Shutdown(ctx context.Context) error {
-	return app.server.Shutdown(ctx)
+	app.grpcServer.Shutdown(ctx)
+
+	err := app.httpServer.Shutdown(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

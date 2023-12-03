@@ -12,10 +12,12 @@ services:
       - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
       - HTTP_PORT=${HTTP_PORT}
+      - GRPC_PORT=${GRPC_PORT}
       - USE_MEMORY=${USE_MEMORY}
     env_file: .env
     ports:
       - '8080:8080'
+      - '9090:9090'
     restart: on-failure
     volumes:
       - .:/app

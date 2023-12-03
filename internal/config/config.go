@@ -9,6 +9,10 @@ type HTTP struct {
 	Port string `env:"HTTP_PORT" env-default:"8080"`
 }
 
+type GRPC struct {
+	Port string `env:"GRPC_PORT" env-default:"9090"`
+}
+
 type DB struct {
 	Name     string `env:"DB_NAME" env-default:"tokens"`
 	Host     string `env:"DB_HOST" env-default:"localhost"`
@@ -23,6 +27,7 @@ type Storage struct {
 
 type Config struct {
 	HTTP
+	GRPC
 	DB
 	Storage
 }
