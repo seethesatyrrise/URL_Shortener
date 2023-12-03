@@ -34,7 +34,7 @@ func (h *Handler) GetToken(ctx *gin.Context) {
 	err := ctx.ShouldBind(&link)
 	if err != nil {
 		h.service.Logger.Error(err.Error())
-		PublishError(ctx, err)
+		PublishError(ctx, utils.ErrBadRequest)
 		return
 	}
 
