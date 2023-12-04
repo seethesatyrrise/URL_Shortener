@@ -11,6 +11,8 @@ type Repo struct {
 }
 
 func New(storage *storage.Storage) *Repo {
-	return &Repo{storage: storage,
-		mtx: sync.Mutex{}}
+	return &Repo{
+		storage: storage,
+		mtx:     sync.Mutex{},
+	}
 }
