@@ -5,7 +5,7 @@ import (
 )
 
 func (r *Repo) GetFullLink(ctx context.Context, token string) (string, error) {
-	link, err := (*r.storage).GetLinkByToken(ctx, token)
+	link, err := r.storage.GetLinkByToken(ctx, token)
 	if err != nil {
 		return "", err
 	}
@@ -17,7 +17,7 @@ func (r *Repo) GetToken(ctx context.Context, link string) (string, error) {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
 
-	token, err := (*r.storage).TryGetTokenByLink(ctx, link)
+	token, err := r.storage.TryGetTokenByLink(ctx, link)
 	if err != nil {
 		return "", err
 	}
@@ -26,7 +26,7 @@ func (r *Repo) GetToken(ctx context.Context, link string) (string, error) {
 	}
 
 	token = generateToken()
-	err = (*r.storage).SaveData(ctx, link, token)
+	err = r.storage.SaveData(ctx, link, token)
 	if err != nil {
 		return "", err
 	}

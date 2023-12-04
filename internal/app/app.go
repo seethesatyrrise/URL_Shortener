@@ -49,7 +49,7 @@ func New(ctx context.Context) (app *App, err error) {
 		app.logger.Info("database connected")
 	}
 
-	repo := repo.New(&app.Storage)
+	repo := repo.New(app.Storage)
 	app.service = service.New(repo, app.Storage, app.logger)
 
 	rest := rest.New(app.service)
